@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBT PAI Kelas 4 - Login</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to right, #1e3c72, #2a5298); /* Gradasi biru ke abu-abu */
+      color: white;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    .login-box, .question-box, .result-box, .confirmation-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: black;
+    }
+    .login-box input, .result-box {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .login-box input {
+      margin-bottom: 20px;
+    }
+    .nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .nav-buttons button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .nav-buttons .active {
+      background: #4CAF50;
+      color: white;
+    }
+    .nav-buttons .flagged {
+      background: orange;
+      color: white;
+    }
+    .nav-buttons .not-answered {
+      background: #f44336;
+      color: white;
+    }
+    .nav-buttons .answered {
+      background: #8bc34a;
+      color: white;
+    }
+    .nav-buttons .ragu-ragu {
+      background: #ff9800;
+      color: white;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    .controls button {
+      flex: 1;
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      background: #45a049;
+    }
+    .result-box, .confirmation-box {
+      display: none;
+      text-align: center;
+      font-size: 22px;
+    }
+    .confirmation-box {
+      background: #ffcc00;
+      padding: 30px;
+      border-radius: 10px;
+    }
+    .time-info {
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    .alert-box {
+      background: #f44336;
+      color: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .hidden {
+      display: none;
+    }
+    /* Animasi untuk transisi antar soal */
+    .question-box {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    .question-box.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box" id="loginBox">
+    <h2>Login Siswa</h2>
+    <input type="text" id="studentName" placeholder="Nama Siswa" required>
+    <input type="text" id="studentId" placeholder="ID Siswa" required>
+    <button onclick="startQuiz()">Mulai Tes</button>
+  </div>
+
+  <div class="question-box hidden" id="quizBox">
+    <h1>CBT PAI - Kelas 4</h1>
+    <div class="nav-buttons" id="questionNav"></div>
+    <div id="question"></div>
+    <div id="options"></div>
+    <div class="controls">
+      <button onclick="prevQuestion()">⬅ Kembali</button>
+      <button onclick="toggleFlag()">Ragu-Ragu</button>
+      <button onclick="nextQuestion()">Lanjut ➡</button>
+    </div>
+  </div>
+
+  <div class="result-box hidden" id="resultBox">
+    <h2>Hasil Tes</h2>
+    <div id="result"></div>
+    <div class="time-info" id="timeInfo"></div>
+  </div>
+
+  <div class="confirmation-box hidden" id="confirmationBox">
+    <h2>Konfirmasi</h2>
+    <p>Apakah Anda yakin sudah mengerjakan semua soal?</p>
+    <button onclick="submitQuiz()">Ya, Selesai</button>
+    <button onclick="goBackToQuiz()">Belum, Kembali</button>
+  </div>
+
+  <div class="hidden" id="alertBox"></div>
+
+  <script>
+    const students = [
+      { name: "Ali Muhammad", id: "12345" },
+      { name: "Siti Fatimah", id: "67890" },
+      { name: "Budi Santoso", id: "11223" }
+    ];
+
+    const questions = [
+      { q: "Nabi adalah manusia pilihan Allah yang mendapat wahyu untuk...", options: ["Diberikan kepada keluarganya", "Disampaikan kepada umatnya", "Disimpan sendiri", "Dijadikan cerita"], answer: 1 },
+      { q: "Rasul pertama yang diutus Allah kepada umat manusia adalah...", options: ["Nabi Musa", "Nabi Isa", "Nabi Nuh", "Nabi Muhammad"], answer: 2 },
+      { q: "Kitab suci yang diturunkan kepada Nabi Muhammad adalah...", options: ["Taurat", "Injil", "Al-Qur’an", "Zabur"], answer: 2 },
+      { q: "Beriman kepada rasul berarti...", options: ["Meniru semua gaya hidupnya", "Meyakini dan meneladani ajarannya", "Berteman dengan semua nabi", "Melihat wajah para nabi"], answer: 1 },
+      { q: "Nabi yang menerima kitab Taurat adalah...", options: ["Nabi Isa", "Nabi Musa", "Nabi Ibrahim", "Nabi Muhammad"], answer: 1 },
+      { q: "Rasul terakhir yang diutus Allah adalah...", options: ["Nabi Isa", "Nabi Nuh", "Nabi Muhammad", "Nabi Ibrahim"], answer: 2 },
+      { q: "Rasul menerima wahyu dari Allah melalui...", options: ["Malaikat Jibril", "Malaikat Mikail", "Malaikat Israfil", "Malaikat Ridwan"], answer: 0 },
+      { q: "Tugas para rasul adalah...", options: ["Menjadi raja di dunia", "Membawa wahyu dan membimbing umat", "Menciptakan langit dan bumi", "Menulis kitab suci"], answer: 1 },
+      { q: "Nabi yang mendapat julukan Ulul Azmi adalah...", options: ["Nabi Yunus", "Nabi Luth", "Nabi Ayub", "Nabi Nuh"], answer: 3 },
+      { q: "Contoh perilaku beriman kepada rasul adalah...", options: ["Meninggalkan shalat", "Mengolok-olok ajaran agama", "Meneladani sifat jujur dan amanah", "Mengikuti teman yang nakal"], answer: 2 }
+    ];
+
+    let current = 0;
+    const answers = new Array(questions.length).fill(null);
+    const flagged = new Array(questions.length).fill(false);
+    let studentName = '';
+    let studentId = '';
+    const startTime = new Date();
+    let notificationShown = false;
+
+    function startQuiz() {
+      studentName = document.getElementById("studentName").value;
+      studentId = document.getElementById("studentId").value;
+
+      if (studentName && studentId) {
+        const student = students.find(stu => stu.name === studentName && stu.id === studentId);
+        if (student) {
+          document.getElementById("loginBox").style.display = "none";
+          document.getElementById("quizBox").style.display = "block";
+          loadQuestion(0);
+        } else {
+          alert("Nama dan ID tidak cocok.");
+        }
+      } else {
+        alert("Mohon isi Nama dan ID Siswa.");
+      }
+    }
+
+    function loadQuestion(index) {
+      current = index;
+      const q = questions[current];
+      document.getElementById("question").innerText = `Soal ${current + 1}: ${q.q}`;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const label = document.createElement("label");
+        label.innerHTML = `
+          <input type="radio" name="option" value="${idx}" ${answers[current] === idx ? 'checked' : ''}>
+          ${opt}<br>
+        `;
+        optionsDiv.appendChild(label);
+      });
+      updateNavButtons();
+      document.getElementById("quizBox").classList.add("visible");
+    }
+
+    function nextQuestion() {
+      const selected = document.querySelector('input[name="option"]:checked');
+      if (selected) answers[current] = parseInt(selected.value);
+      if (current < questions.length - 1) {
+        loadQuestion(current + 1);
+      } else {
+        confirmCompletion();
+      }
+    }
+
+    function prevQuestion() {
+      const selected = document.querySelector('input[name="option"]:checked');
+      if (selected) answers[current] = parseInt(selected.value);
+      if (current > 0) {
+        loadQuestion(current - 1);
+      }
+    }
+
+    function toggleFlag() {
+      flagged[current] = !flagged[current];
+      updateNavButtons();
+    }
+
+    function updateNavButtons() {
+      const nav = document.getElementById("questionNav");
+      nav.innerHTML = "";
+      for (let i = 0; i < questions.length; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i + 1;
+        if (i === current) btn.classList.add("active");
+        if (flagged[i]) btn.classList.add("flagged");
+        if (answers[i] !== null) btn.classList.add("answered");
+        else btn.classList.add("not-answered");
+        if (flagged[i]) btn.classList.add("ragu-ragu");
+        btn.onclick = () => {
+          const selected = document.querySelector('input[name="option"]:checked');
+          if (selected) answers[current] = parseInt(selected.value);
+          loadQuestion(i);
+        };
+        nav.appendChild(btn);
+      }
+    }
+
+    function confirmCompletion() {
+      let unanswered = answers.some(answer => answer === null);
+      if (unanswered && !notificationShown) {
+        showAlert("Beberapa soal belum dikerjakan! Tolong jawab semua soal sebelum mengakhiri tes.");
+        notificationShown = true;
+      } else if (!unanswered) {
+        document.getElementById("quizBox").style.display = "none";
+        document.getElementById("confirmationBox").style.display = "block";
+      }
+    }
+
+    function showAlert(message) {
+      const alertBox = document.getElementById("alertBox");
+      alertBox.innerText = message;
+      alertBox.classList.remove("hidden");
+    }
+
+    function submitQuiz() {
+      let score = 0;
+      questions.forEach((q, i) => {
+        if (answers[i] === q.answer) score++;
+      });
+      const endTime = new Date();
+      const timeTaken = ((endTime - startTime) / 1000).toFixed(0); // waktu dalam detik
+
+      document.getElementById("confirmationBox").style.display = "none";
+      document.getElementById("resultBox").style.display = "block";
+      document.getElementById("result").innerText = `Tes selesai! Nama: ${studentName}\nSkor Anda: ${score} dari ${questions.length}`;
+      document.getElementById("timeInfo").innerHTML = `Waktu yang dihabiskan: ${timeTaken} detik<br>Tanggal: ${new Date().toLocaleDateString()}`;
+    }
+
+    function goBackToQuiz() {
+      document.getElementById("confirmationBox").style.display = "none";
+      document.getElementById("quizBox").style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
