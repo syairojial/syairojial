@@ -1,0 +1,16 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.navbar {
+  z-index: 1000;
+}
+
+#timer {
+  font-weight: bold;
+  color: red;
+}
+
+#soal-section {
+  display: none;
+}

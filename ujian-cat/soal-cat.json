@@ -1,0 +1,37 @@
+{
+  "soal": [
+    {
+      "id": 1,
+      "pertanyaan": "Ibu kota Indonesia adalah?",
+      "opsi": {
+        "a": "Bandung",
+        "b": "Surabaya",
+        "c": "Jakarta",
+        "d": "Medan"
+      },
+      "jawaban": "c"
+    },
+    {
+      "id": 2,
+      "pertanyaan": "5 + 7 = ...",
+      "opsi": {
+        "a": "10",
+        "b": "11",
+        "c": "12",
+        "d": "13"
+      },
+      "jawaban": "c"
+    },
+    {
+      "id": 3,
+      "pertanyaan": "Lambang negara Indonesia adalah?",
+      "opsi": {
+        "a": "Pancasila",
+        "b": "Burung Garuda",
+        "c": "Bendera Merah Putih",
+        "d": "Bhineka Tunggal Ika"
+      },
+      "jawaban": "b"
+    }
+  ]
+}
